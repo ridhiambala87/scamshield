@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ScamShield AI — Detect. Explain. Protect.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+
+<!-- OCR library: Tesseract.js -->
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+<!-- QR code decode library: jsQR -->
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+<!-- QR code generator for judge demo presets -->
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- TOP NAVBAR -->
+<nav class="navbar">
+  <div class="navbar-brand" data-page="scanner">
+    <div class="brand-icon">🛡️</div>
+    <div class="brand-text">
+      <div class="brand-title">SCAMSHIELD AI <span class="brand-tag">PRO</span></div>
+      <div class="brand-sub">Detect • Explain • Protect</div>
+    </div>
+  </div>
+
+  <div class="nav-center">
+    <button class="navlink" data-page="dashboard">
+      <span>📊</span><span class="link-text">Dashboard</span>
+    </button>
+    <button class="navlink active" data-page="scanner">
+      <span>🔍</span><span class="link-text">Scanner</span>
+    </button>
+    <button class="navlink" data-page="history">
+      <span>🕓</span><span class="link-text">History</span>
+      <span class="nav-count-badge" id="navHistoryCount">0</span>
+    </button>
+    <button class="navlink" data-page="howitworks">
+      <span>⚡</span><span class="link-text">How It Works</span>
+    </button>
+    <button class="navlink" data-page="about">
+      <span>ℹ️</span><span class="link-text">About</span>
+    </button>
+  </div>
+
+  <div class="nav-right">
+    <div class="lang-select-wrap">
+      <span>🌐</span>
+      <select id="langSelect" class="lang-select" title="Select Output Language">
+        <option value="en">English</option>
+        <option value="hi">हिन्दी</option>
+        <option value="hinglish">Hinglish</option>
+      </select>
+    </div>
+    <button class="scan-now-cta" data-page="scanner">
+      <span>⚡</span> Scan Now
+    </button>
+  </div>
+</nav>
+
+<!-- THREAT TICKER -->
+<div class="threat-ticker">
+  <div class="ticker-track">
+    <span class="ticker-item">🚨 <b>LIVE FRAUD INTEL:</b> Surge in fake Electricity Bill disconnection SMS demanding instant APK download</span>
+    <span class="ticker-item">📞 <b>NATIONAL HELPLINE:</b> Call <span class="helpline">1930</span> or visit <b>cybercrime.gov.in</b> within the Golden Hour to freeze fraudulent transfers</span>
+    <span class="ticker-item">💳 <b>UPI SAFETY RULE:</b> You NEVER need to scan a QR code or enter a UPI PIN to receive money</span>
+    <span class="ticker-item">🏦 <b>BANK KYC ADVISORY:</b> Banks NEVER send SMS with .xyz or .apk links demanding Aadhaar/PAN updates</span>
+    <span class="ticker-item">👵 <b>FAMILY PROTECTION:</b> Forward suspicious messages in Family Mode for one-click plain warnings</span>
+  </div>
+</div>
+
+<main>
+<div class="wrap">
+
+  <!-- ================= 1. SCANNER PAGE ================= -->
+  <section class="page active" id="page-scanner">
+    
+    <div class="hero">
+      <div class="hero-badge">
+        <span class="pulse"></span>
+        AI-POWERED DIGITAL FRAUD DECISION SUPPORT
+      </div>
+      <h1>Before You Click, <span>Know the Risk.</span></h1>
+      <p class="hero-subtitle">
+        Analyze suspicious messages, screenshots, URLs and QR codes with hybrid deterministic threat intelligence and Groq AI contextual reasoning.
+      </p>
+      <div class="trust-statement">
+        DETECT <span>→</span> EXPLAIN <span>→</span> PROTECT
+      </div>
+
+      <!-- Zero-Hour Behavioral Defense Positioning -->
+      <div class="zerohour-banner">
+        <div class="zerohour-icon">🛡️</div>
+        <div class="zerohour-text">
+          <b>Zero-Hour Behavioral Defense:</b> Static blacklists (Truecaller, VirusTotal) only catch scams <i>after</i> thousands report them. ScamShield AI inspects psychological coercion, deceptive domain syntax, and live DNS resolution at zero-hour—protecting victims before blacklists are updated.
+        </div>
+        <div class="zerohour-tag">Zero-Hour Layer</div>
+      </div>
+    </div>
+
+    <!-- MAIN ANALYZER CARD -->
+    <div class="analyzer-card">
+      <div class="tabs-nav">
+        <button class="tab-btn active" data-tab="text">
+          <span>📝</span> Message
+        </button>
+        <button class="tab-btn" data-tab="screenshot">
+          <span>📸</span> Screenshot
+        </button>
+        <button class="tab-btn" data-tab="url">
+          <span>🔗</span> URL Link
+        </button>
+        <button class="tab-btn" data-tab="qr">
+          <span>▦</span> QR Code
+        </button>
+      </div>
+
+      <div class="input-panel">
+        <!-- 1. MESSAGE INPUT -->
+        <div class="tab-content" id="tab-text">
+          <textarea id="textInput" class="cyber-input" placeholder="Paste the suspicious WhatsApp message, SMS, email, or job offer here...
+
+e.g. URGENT! Your SBI account will be blocked today. Verify your KYC immediately: https://sbi-online-kyc-update.xyz/verify"></textarea>
+        </div>
+
+        <!-- 2. SCREENSHOT INPUT -->
+        <div class="tab-content hidden" id="tab-screenshot">
+          <div class="dropzone" id="screenshotDrop">
+            <div class="dropzone-icon">📸</div>
+            <div class="dropzone-text" id="screenshotPrompt">Click, Paste (<kbd>Ctrl+V</kbd>), or Drag & Drop Screenshot</div>
+            <div class="dropzone-hint">Supports WhatsApp Web, Mobile Chats, SMS, Telegram & Email screenshots. Automatic contrast enhancement & UI noise filtering applied.</div>
+            <img id="screenshotPreview" class="preview-img hidden" alt="Screenshot preview">
+          </div>
+          <input type="file" id="screenshotFile" accept="image/*" class="hidden">
+          
+          <div id="ocrStagedProgress" class="staged-progress hidden">
+            <div class="stage-step" id="ocrStep1"><span class="stage-icon">◌</span> Step 1: Preprocessing & Contrast Optimization...</div>
+            <div class="stage-step" id="ocrStep2"><span class="stage-icon">◌</span> Step 2: Optical Character Recognition (OCR)...</div>
+            <div class="stage-step" id="ocrStep3"><span class="stage-icon">◌</span> Step 3: Filtering UI Noise & Extracting Messages...</div>
+          </div>
+
+          <div id="ocrEditWrap" class="ocr-edit-wrap hidden">
+            <div class="ocr-edit-header" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+              <span><b>Extracted Message Content</b> (Editable):</span>
+              <span id="ocrPlatformBadge" class="hidden" style="font-size:12px;background:rgba(37,211,102,0.15);color:#25D366;border:1px solid rgba(37,211,102,0.3);padding:2px 8px;border-radius:12px;font-weight:600;">💬 WhatsApp Detected</span>
+            </div>
+            <textarea id="ocrExtractedTextArea" class="cyber-input" style="min-height:95px;" placeholder="Extracted conversation will appear here..."></textarea>
+          </div>
+        </div>
+
+        <!-- 3. URL INPUT -->
+        <div class="tab-content hidden" id="tab-url">
+          <input type="text" id="urlInput" class="cyber-input" placeholder="https://sbi-online-verification.xyz/update-pan">
+          <div style="font-size:12px;color:var(--ink-dim);margin-top:8px;">
+            🛡️ ScamShield will analyze protocol security, TLD risk, brand lookalikes, IP hosts, and subdomain depth.
+          </div>
+        </div>
+
+        <!-- 4. QR INPUT -->
+        <div class="tab-content hidden" id="tab-qr">
+          <div class="dropzone" id="qrDrop">
+            <div class="dropzone-icon">▦</div>
+            <div class="dropzone-text" id="qrPrompt">Click or Drag & Drop a QR Code Image</div>
+            <div class="dropzone-hint">Automatically decodes QR destinations and inspects UPI / URL payloads.</div>
+            <img id="qrPreview" class="preview-img hidden" alt="QR code preview">
+          </div>
+          <input type="file" id="qrFile" accept="image/*" class="hidden">
+          <div id="qrStatusBox" class="staged-progress hidden"></div>
+        </div>
+      </div>
+
+      <!-- Quick Example Chips (Dynamically rendered per active tab) -->
+      <div class="example-chips-wrap" id="demoChipsWrap">
+        <span class="example-label" id="demoChipsLabel">⚡ Judge Demos:</span>
+        <div id="demoChipsContainer" style="display:inline-flex;flex-wrap:wrap;gap:8px;"></div>
+      </div>
+
+      <button class="main-analyze-btn" id="analyzeBtn">
+        <span>🛡️</span> Analyze Threat Signals & AI Context →
+      </button>
+    </div>
+
+    <!-- SCANNING STAGED LOADER (appears during analysis) -->
+    <div id="scanningStagedBox" class="analyzer-card hidden" style="margin-top:20px;border-color:var(--primary);">
+      <div style="font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;color:var(--cyan);margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+        <span class="spinner"></span> ANALYZING THREAT PIPELINE...
+      </div>
+      <div class="staged-progress" style="margin:0;border:none;background:transparent;padding:0;">
+        <div class="stage-step done" id="scanStage1"><span class="stage-icon">✓</span> Content extracted & normalized</div>
+        <div class="stage-step active" id="scanStage2"><span class="stage-icon">◌</span> Deterministic threat signal heuristics checking...</div>
+        <div class="stage-step" id="scanStage3"><span class="stage-icon">◌</span> URL structure & brand lookalike analysis</div>
+        <div class="stage-step" id="scanStage4"><span class="stage-icon">◌</span> Groq AI contextual intent & social engineering reasoning</div>
+        <div class="stage-step" id="scanStage5"><span class="stage-icon">◌</span> Generating actionable protection & Family Mode warnings</div>
+      </div>
+    </div>
+
+    <!-- RESULTS CONTAINER -->
+    <div id="results"></div>
+
+  </section>
+
+  <!-- ================= 2. DASHBOARD PAGE ================= -->
+  <section class="page" id="page-dashboard">
+    <div class="dashboard-head">
+      <div>
+        <h1 style="font-family:'Space Grotesk',sans-serif;font-size:28px;font-weight:700;color:#FFF;">Security Dashboard</h1>
+        <p style="color:var(--ink-muted);font-size:14px;">Real-time scam statistics computed dynamically from your local browser scan history.</p>
+      </div>
+      <button class="sec-action-btn primary" data-page="scanner">
+        <span>🔍</span> New Scan
+      </button>
+    </div>
+
+    <!-- METRICS GRID -->
+    <div class="dash-stats-grid">
+      <div class="dash-card">
+        <div class="dash-card-num" id="dashTotalScans">0</div>
+        <div class="dash-card-label">Total Scans</div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-card-num" id="dashThreatsDetected" style="color:var(--high);">0</div>
+        <div class="dash-card-label">Threats Detected</div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-card-num" id="dashHighRisk" style="color:var(--critical);">0</div>
+        <div class="dash-card-label">Critical / High Risk</div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-card-num" id="dashAvgScore">0<span style="font-size:14px;color:var(--ink-dim);">/100</span></div>
+        <div class="dash-card-label">Average Risk Score</div>
+      </div>
+    </div>
+
+    <div class="dash-split-grid">
+      <!-- Risk Distribution -->
+      <div class="dash-section-box">
+        <div class="dash-box-title">Risk Distribution</div>
+        <div style="display:flex;flex-direction:column;gap:12px;" id="dashRiskBars">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- Threat Categories -->
+      <div class="dash-section-box">
+        <div class="dash-box-title">Top Detected Categories</div>
+        <div style="display:flex;flex-direction:column;gap:10px;" id="dashCategoryBars">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- RECENT THREATS LIST -->
+    <div class="dash-section-box">
+      <div class="dash-box-title">Recent Analyzed Communications</div>
+      <div id="dashRecentList" class="history-list">
+        <!-- Populated by JS -->
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 3. HISTORY PAGE ================= -->
+  <section class="page" id="page-history">
+    <div class="dashboard-head">
+      <div>
+        <h1 style="font-family:'Space Grotesk',sans-serif;font-size:28px;font-weight:700;color:#FFF;">Scan History</h1>
+        <p style="color:var(--ink-muted);font-size:14px;">Encrypted local scan records preserved in your browser.</p>
+      </div>
+      <button class="sec-action-btn" id="clearHistoryBtn" style="color:var(--critical);border-color:rgba(239,68,68,0.3);">
+        <span>🗑️</span> Clear History
+      </button>
+    </div>
+
+    <div class="history-controls">
+      <input type="text" id="historySearch" class="search-input" placeholder="Search past scans by text or category...">
+      <div class="filter-chips">
+        <button class="filter-chip active" data-filter="all">All</button>
+        <button class="filter-chip" data-filter="critical_high">Critical & High</button>
+        <button class="filter-chip" data-filter="medium">Medium</button>
+        <button class="filter-chip" data-filter="low">Low Risk</button>
+      </div>
+    </div>
+
+    <div id="historyListContainer" class="history-list">
+      <!-- Populated by JS -->
+    </div>
+  </section>
+
+  <!-- ================= 4. HOW IT WORKS PAGE ================= -->
+  <section class="page" id="page-howitworks">
+    <div class="hero" style="text-align:left;margin-bottom:24px;">
+      <h1 style="font-size:30px;">How ScamShield AI Works</h1>
+      <p class="hero-subtitle" style="margin:0;">The Hybrid Threat Intelligence Pipeline: combining deterministic heuristic signals with Groq AI contextual reasoning.</p>
+    </div>
+
+    <div class="architecture-flow">
+      <div class="arch-stage">
+        <div class="arch-num">1</div>
+        <div class="arch-text">
+          <h4>Multi-Modal Ingestion</h4>
+          <p>ScamShield accepts text, uploaded screenshots (via local Tesseract OCR with manual correction support), raw URLs, or QR codes (decoded via jsQR into URLs or UPI deep-links).</p>
+        </div>
+      </div>
+
+      <div class="arch-stage">
+        <div class="arch-num">2</div>
+        <div class="arch-text">
+          <h4>Deterministic Heuristic Rule Engine</h4>
+          <p>Evaluates known threat signatures across 6 core vectors: urgency coercion, authority/bank impersonation, credential harvesting (OTP/PIN/Pass), payment triggers, job/investment scams, and disposable TLDs.</p>
+        </div>
+      </div>
+
+      <div class="arch-stage">
+        <div class="arch-num">3</div>
+        <div class="arch-text">
+          <h4>URL & Domain Reputation Inspection</h4>
+          <p>Dissects domain structures, detects lookalike typosquatting against major institutions (SBI, HDFC, Amazon), inspects IP-based hosts, excessive subdomain chaining, and unencrypted HTTP transport.</p>
+        </div>
+      </div>
+
+      <div class="arch-stage">
+        <div class="arch-num">4</div>
+        <div class="arch-text">
+          <h4>Groq AI Contextual Reasoning Engine</h4>
+          <p>Groq's high-speed inference model analyzes intent, psychological manipulation tactics, social engineering subtleties, and multi-lingual nuances while operating within strict prompt injection boundaries.</p>
+        </div>
+      </div>
+
+      <div class="arch-stage">
+        <div class="arch-num">5</div>
+        <div class="arch-text">
+          <h4>Hybrid Risk Aggregation & Scoring</h4>
+          <p>Combines rule points and AI contextual evaluation into an explainable 0–100 composite score with full transparent point attribution.</p>
+        </div>
+      </div>
+
+      <div class="arch-stage">
+        <div class="arch-num">6</div>
+        <div class="arch-text">
+          <h4>Actionable Protection & Family Mode</h4>
+          <p>Generates prioritized defense steps, emergency 1930 recovery workflows, multi-level explanations (Simple, Technical, Family), and one-click WhatsApp safety warning cards.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- COMPARISON TABLE -->
+    <div style="margin-top:36px;">
+      <h3 style="font-family:'Space Grotesk',sans-serif;font-size:18px;color:#FFF;margin-bottom:12px;">Why ScamShield AI Beats Basic Keyword Filters</h3>
+      <table class="comparison-table">
+        <thead>
+          <tr>
+            <th>Security Dimension</th>
+            <th>Basic Keyword Filter</th>
+            <th>ScamShield AI Hybrid Engine</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><b>Context & Nuance</b></td>
+            <td>Dumb regex; flags legitimate bank OTP alerts and misses subtle scams.</td>
+            <td><b>Understands intent:</b> distinguishes between "Your OTP is 1234, do not share" vs "Share OTP to unlock account".</td>
+          </tr>
+          <tr>
+            <td><b>Lookalike Domains</b></td>
+            <td>Cannot inspect TLDs or subdomain nesting.</td>
+            <td><b>Deep URL heuristics:</b> flags <code>sbi-verify.xyz</code>, IP hosts, and shorteners.</td>
+          </tr>
+          <tr>
+            <td><b>Reverse UPI Exploits</b></td>
+            <td>Fails completely on QR codes or payment links.</td>
+            <td><b>Identifies reverse UPI:</b> alerts user that scanning QR or entering PIN debits money.</td>
+          </tr>
+          <tr>
+            <td><b>Actionable Protection</b></td>
+            <td>Displays generic "Blocked" or "Allowed".</td>
+            <td><b>Concrete Action Plan:</b> 1930 Cyber helpline guidance + Family Mode WhatsApp card.</td>
+          </tr>
+          <tr>
+            <td><b>Zero-Hour Protection vs Blacklists</b></td>
+            <td>Truecaller / VirusTotal rely on crowdsourced blacklists: unlisted 0-day phishing links pass right through.</td>
+            <td><b>Behavioral Zero-Hour Analysis:</b> Inspects psychological coercion, live DNS host existence, and brand lookalikes immediately without waiting for victim reports.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ================= 5. ABOUT PAGE ================= -->
+  <section class="page" id="page-about">
+    <div class="hero" style="text-align:left;margin-bottom:24px;">
+      <h1 style="font-size:30px;">About ScamShield AI</h1>
+      <p class="hero-subtitle" style="margin:0;">Building an AI-driven digital safety net for individuals, families, and digital payment users.</p>
+    </div>
+
+    <div class="dash-split-grid" style="margin-bottom:24px;">
+      <div class="dash-section-box">
+        <div class="dash-box-title">Client-Side Engine</div>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:8px;font-size:13.5px;color:var(--ink-muted);">
+          <li>✓ <b>Tesseract OCR:</b> Extracts text locally from screenshots.</li>
+          <li>✓ <b>jsQR Decoder:</b> Parses QR payloads and UPI schemes.</li>
+          <li>✓ <b>Local Deterministic Engine:</b> 100% offline fallback capability.</li>
+          <li>✓ <b>Local History:</b> Private scan storage in browser localStorage.</li>
+          <li>✓ <b>Canvas Renderer:</b> High-DPI shareable PNG report cards.</li>
+        </ul>
+      </div>
+
+      <div class="dash-section-box">
+        <div class="dash-box-title">Server-Side Engine</div>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:8px;font-size:13.5px;color:var(--ink-muted);">
+          <li>✓ <b>Groq AI API:</b> Ultra-fast, high-accuracy inference.</li>
+          <li>✓ <b>API Key Protection:</b> Keys reside strictly on the server.</li>
+          <li>✓ <b>Prompt Injection Shield:</b> Sandboxed untrusted user input.</li>
+          <li>✓ <b>Schema Validation:</b> Strict structured JSON response parsing.</li>
+          <li>✓ <b>Automated Retries:</b> Resilient exponential backoff handling.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="dash-section-box">
+      <div class="dash-box-title">Privacy & Data Ethics</div>
+      <p style="font-size:13.5px;color:var(--ink-muted);line-height:1.6;">
+        ScamShield is engineered with strict privacy principles. Screenshots submitted for analysis are converted to text ephemerally and never permanently retained on any remote server. Your scan history is stored exclusively inside your browser's private local storage. Sensitive credentials submitted in error are evaluated for threats and never harvested.
+      </p>
+    </div>
+  </section>
+
+</div>
+</main>
+
+<footer>
+  <b>ScamShield AI</b> — Detect. Explain. Protect. · Built for Hack Devengers 2.0<br>
+  Suspect cyber fraud? Immediately contact the National Cyber Crime Helpline: <a href="tel:1930">1930</a> or visit <a href="https://cybercrime.gov.in" target="_blank" rel="noopener">cybercrime.gov.in</a>
+</footer>
+
+<!-- EMBEDDED THREAT ENGINE (Ensures complete offline browser capability & instant demos) -->
+<script src="lib/ai/threat-engine.js"></script>
+<!-- SCAMSHIELD FRONTEND APPLICATION -->
+<script src="app.js"></script>
+</body>
+</html>
