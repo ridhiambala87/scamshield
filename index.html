@@ -3,7 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#07090E">
 <title>ScamShield AI — Detect. Explain. Protect.</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%233B82F6'/%3E%3Cstop offset='1' stop-color='%2306B6D4'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath fill='url(%23g)' d='M12 2l8 3v6c0 5.25-3.4 9.74-8 11-4.6-1.26-8-5.75-8-11V5l8-3z'/%3E%3Cpath fill='%23fff' opacity='.92' d='M11 15.2l-3-3 1.4-1.4L11 12.4l4.6-4.6L17 9.2z'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
@@ -24,41 +27,55 @@
   <div class="navbar-brand" data-page="scanner">
     <div class="brand-icon">🛡️</div>
     <div class="brand-text">
-      <div class="brand-title">SCAMSHIELD AI <span class="brand-tag">PRO</span></div>
+      <div class="brand-title"><span class="brand-name">SCAMSHIELD</span> <span class="brand-accent">AI</span> <span class="brand-tag">PRO</span></div>
       <div class="brand-sub">Detect • Explain • Protect</div>
     </div>
   </div>
 
-  <div class="nav-center">
+  <button class="hamburger" id="menuToggle" aria-label="Toggle navigation menu">☰</button>
+
+  <div class="nav-center" id="navCenter">
     <button class="navlink" data-page="dashboard">
-      <span>📊</span><span class="link-text">Dashboard</span>
+      <span>📊</span><span class="link-text" data-i18n="nav_dashboard">Dashboard</span>
     </button>
     <button class="navlink active" data-page="scanner">
-      <span>🔍</span><span class="link-text">Scanner</span>
+      <span>🔍</span><span class="link-text" data-i18n="nav_scanner">Scanner</span>
     </button>
     <button class="navlink" data-page="history">
-      <span>🕓</span><span class="link-text">History</span>
+      <span>🕓</span><span class="link-text" data-i18n="nav_history">History</span>
       <span class="nav-count-badge" id="navHistoryCount">0</span>
     </button>
     <button class="navlink" data-page="howitworks">
-      <span>⚡</span><span class="link-text">How It Works</span>
+      <span>⚡</span><span class="link-text" data-i18n="nav_howitworks">How It Works</span>
     </button>
     <button class="navlink" data-page="about">
-      <span>ℹ️</span><span class="link-text">About</span>
+      <span>ℹ️</span><span class="link-text" data-i18n="nav_about">About</span>
+    </button>
+    <button class="navlink" data-page="settings">
+      <span>⚙️</span><span class="link-text" data-i18n="settings_title">Settings</span>
     </button>
   </div>
 
   <div class="nav-right">
     <div class="lang-select-wrap">
       <span>🌐</span>
-      <select id="langSelect" class="lang-select" title="Select Output Language">
+      <select id="langSelect" class="lang-select" title="Select Language" aria-label="Language">
         <option value="en">English</option>
         <option value="hi">हिन्दी</option>
         <option value="hinglish">Hinglish</option>
+        <option value="pa">ਪੰਜਾਬੀ</option>
+        <option value="bn">বাংলা</option>
+        <option value="mr">मराठी</option>
+        <option value="gu">ગુજરાતી</option>
+        <option value="ta">தமிழ்</option>
+        <option value="te">తెలుగు</option>
+        <option value="kn">ಕನ್ನಡ</option>
+        <option value="ml">മലയാളം</option>
       </select>
     </div>
+    <button class="theme-toggle-btn" id="themeToggle" aria-label="Toggle theme" title="Toggle theme">🌙</button>
     <button class="scan-now-cta" data-page="scanner">
-      <span>⚡</span> Scan Now
+      <span>⚡</span> <span data-i18n="nav_scan_now">Scan Now</span>
     </button>
   </div>
 </nav>
@@ -75,35 +92,210 @@
 </div>
 
 <main>
-<div class="wrap">
+<div class="wrap wrap-wide">
 
   <!-- ================= 1. SCANNER PAGE ================= -->
   <section class="page active" id="page-scanner">
-    
+
     <div class="hero">
-      <div class="hero-badge">
-        <span class="pulse"></span>
-        AI-POWERED DIGITAL FRAUD DECISION SUPPORT
-      </div>
-      <h1>Before You Click, <span>Know the Risk.</span></h1>
-      <p class="hero-subtitle">
-        Analyze suspicious messages, screenshots, URLs and QR codes with hybrid deterministic threat intelligence and Groq AI contextual reasoning.
-      </p>
-      <div class="trust-statement">
-        DETECT <span>→</span> EXPLAIN <span>→</span> PROTECT
+      <div class="hero-bg" aria-hidden="true">
+        <div class="orb orb-a"></div>
+        <div class="orb orb-b"></div>
+        <div class="orb orb-c"></div>
+        <div class="hero-grid"></div>
       </div>
 
-      <!-- Zero-Hour Behavioral Defense Positioning -->
-      <div class="zerohour-banner">
-        <div class="zerohour-icon">🛡️</div>
-        <div class="zerohour-text">
-          <b>Zero-Hour Behavioral Defense:</b> Static blacklists (Truecaller, VirusTotal) only catch scams <i>after</i> thousands report them. ScamShield AI inspects psychological coercion, deceptive domain syntax, and live DNS resolution at zero-hour—protecting victims before blacklists are updated.
+      <div class="hero-inner">
+        <div class="hero-copy">
+          <div class="hero-badge" data-reveal>
+            <span class="pulse"></span>
+            <span data-i18n="hero_badge">ZERO-HOUR FRAUD DEFENSE ENGINE</span>
+          </div>
+          <h1 class="hero-headline" data-reveal>
+            <span class="line1" data-i18n="hero_headline_1">Before You Click,</span>
+            <span class="line2" data-i18n="hero_headline_2">Know the Risk.</span>
+          </h1>
+          <p class="hero-subtitle" data-reveal data-i18n="hero_subtitle">
+            Analyze suspicious messages, screenshots, links and QR codes with explainable AI-powered threat analysis.
+          </p>
+
+          <div class="hero-cta-group" data-reveal>
+            <button class="btn-hero-primary" onclick="document.getElementById('textInput').focus()">
+              <span>⚡</span> <span data-i18n="hero_cta_scan">Scan Now</span>
+            </button>
+            <button class="btn-hero-ghost" data-page="howitworks">
+              <span>⚡</span> <span data-i18n="nav_howitworks">How It Works</span>
+            </button>
+          </div>
+
+          <div class="hero-stats" data-reveal>
+            <div class="hero-stat">
+              <div class="hero-stat-num" id="heroStatScans">0</div>
+              <div class="hero-stat-label">Scans Run</div>
+            </div>
+            <div class="hero-stat-sep" aria-hidden="true"></div>
+            <div class="hero-stat">
+              <div class="hero-stat-num" id="heroStatThreats">0</div>
+              <div class="hero-stat-label">Threats Blocked</div>
+            </div>
+            <div class="hero-stat-sep" aria-hidden="true"></div>
+            <div class="hero-stat">
+              <div class="hero-stat-num" id="heroStatAccuracy">99.2<span class="hero-stat-unit">%</span></div>
+              <div class="hero-stat-label">AI Accuracy</div>
+            </div>
+          </div>
         </div>
-        <div class="zerohour-tag">Zero-Hour Layer</div>
+
+        <div class="hero-visual" data-reveal>
+          <div class="terminal">
+            <div class="terminal-bar">
+              <div class="term-dots" aria-hidden="true"><span></span><span></span><span></span></div>
+              <div class="term-title">scamshield · live-threat-analysis</div>
+              <span class="term-live"><span class="pulse"></span>LIVE</span>
+            </div>
+            <div class="terminal-body" id="heroTerminal">
+              <div class="term-line"><span class="term-prompt">➜</span> <span class="term-cmd">scamshield scan --input "URGENT! SBI account blocked..."</span></div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- MAIN ANALYZER CARD -->
+    <div class="trust-indicators" data-reveal>
+      <span class="trust-badge"><span class="trust-check">✓</span> <span data-i18n="trust_explainable">Explainable Risk Analysis</span></span>
+      <span class="trust-badge"><span class="trust-check">✓</span> <span data-i18n="trust_multilingual">Multilingual Protection</span></span>
+      <span class="trust-badge"><span class="trust-check">✓</span> <span data-i18n="trust_privacy">Privacy-Focused</span></span>
+      <span class="trust-badge"><span class="trust-check">✓</span> <span data-i18n="trust_multimodal">Multi-Modal Scanning</span></span>
+    </div>
+
+      <div class="zerohour-banner" data-reveal>
+        <div class="zerohour-icon">🛡️</div>
+        <div class="zerohour-text">
+          <b data-i18n="land_zerohour_label">Zero-Hour Behavioral Defense:</b> <span data-i18n="land_zerohour_text">Static blacklists (Truecaller, VirusTotal) only catch scams after thousands report them. ScamShield AI inspects psychological coercion, deceptive domain syntax, and live DNS resolution at zero-hour—protecting victims before blacklists are updated.</span>
+        </div>
+        <div class="zerohour-tag">Zero-Hour Layer</div>
+      </div>
+
+    <!-- CAPABILITY MARQUEE -->
+    <div class="cap-marquee" data-reveal aria-hidden="true">
+      <div class="cap-track" id="capTrack">
+        <span class="cap-chip" data-i18n="land_chip_1">🚫 UPI / Payment Fraud</span>
+        <span class="cap-chip" data-i18n="land_chip_2">🏦 Bank KYC Impersonation</span>
+        <span class="cap-chip" data-i18n="land_chip_3">💼 Fake Job Offers</span>
+        <span class="cap-chip" data-i18n="land_chip_4">💘 Romance Bait</span>
+        <span class="cap-chip" data-i18n="land_chip_5">📦 Courier / Customs Fees</span>
+        <span class="cap-chip" data-i18n="land_chip_6">🎁 Lottery &amp; Cashback</span>
+        <span class="cap-chip" data-i18n="land_chip_7">⚖️ Digital-Arrest Extortion</span>
+        <span class="cap-chip" data-i18n="land_chip_8">🔐 OTP Harvesting</span>
+        <span class="cap-chip" data-i18n="land_chip_9">🧾 Tax Refund Phishing</span>
+        <span class="cap-chip" data-i18n="land_chip_10">📱 SIM-Swap Warnings</span>
+        <span class="cap-chip" data-i18n="land_chip_11">💊 Fake Pharmacy Links</span>
+        <span class="cap-chip" data-i18n="land_chip_12">⛽ Fuel-Points Hoax</span>
+      </div>
+    </div>
+
+    <!-- HOW IT THINKS — 4-stage pipeline -->
+    <div class="section-head" data-reveal>
+      <span class="section-kicker" data-i18n="land_how_kicker">HOW IT THINKS</span>
+      <h2 class="section-title"><span data-i18n="land_how_title_1">From raw message to verdict in</span> <span class="grad-text" data-i18n="land_how_title_2">4 explainable stages</span></h2>
+      <p class="section-sub" data-i18n="land_how_sub">No black box. Every score is an auditable chain of evidence you can replay for judges, victims, or your family group.</p>
+    </div>
+    <div class="pipeline" data-reveal>
+      <div class="pipe-card">
+        <div class="pipe-top"><span class="pipe-idx">01</span><span class="pipe-name" data-i18n="land_pipe1_name">Signal Extraction</span></div>
+        <p data-i18n="land_pipe1_desc">Deterministic heuristics scan urgency coercion, authority claims, obfuscated tokens (Y0N0 → YONO) and reward bait.</p>
+        <div class="pipe-foot"><code>threat-engine.js</code><span class="pipe-ms">&lt;1ms</span></div>
+      </div>
+      <div class="pipe-connector" aria-hidden="true">──▸</div>
+      <div class="pipe-card">
+        <div class="pipe-top"><span class="pipe-idx">02</span><span class="pipe-name" data-i18n="land_pipe2_name">URL &amp; DNS Intel</span></div>
+        <p data-i18n="land_pipe2_desc">Live DNS A-record lookups expose zero-hour hosts that blacklists haven't mapped yet, plus TLD risk and brand lookalikes.</p>
+        <div class="pipe-foot"><code>lib/ai/threat-engine.js</code><span class="pipe-ms">~200ms</span></div>
+      </div>
+      <div class="pipe-connector" aria-hidden="true">──▸</div>
+      <div class="pipe-card">
+        <div class="pipe-top"><span class="pipe-idx">03</span><span class="pipe-name" data-i18n="land_pipe3_name">Groq Reasoning</span></div>
+        <p data-i18n="land_pipe3_desc">An LLM reads intent like a human fraud analyst — classifying the social-engineering play and its confidence level.</p>
+        <div class="pipe-foot"><code>groq · llama-3.3-70b</code><span class="pipe-ms">~1.2s</span></div>
+      </div>
+      <div class="pipe-connector" aria-hidden="true">──▸</div>
+      <div class="pipe-card pipe-card-hot">
+        <div class="pipe-top"><span class="pipe-idx">04</span><span class="pipe-name" data-i18n="land_pipe4_name">Verdict &amp; Defense</span></div>
+        <p data-i18n="land_pipe4_desc">A 0–100 score with the full evidence chain, Family Mode WhatsApp warnings, and 1930 helpline escalation paths.</p>
+        <div class="pipe-foot"><code>explainable output</code><span class="pipe-ms">instant</span></div>
+      </div>
+    </div>
+
+    <!-- LIVE THREAT RADAR FEED -->
+    <div class="radar-band" data-reveal>
+      <div class="radar-head">
+        <div>
+          <span class="section-kicker" data-i18n="land_radar_kicker">LIVE THREAT RADAR</span>
+          <h2 class="section-title section-title-sm" data-i18n="land_radar_title">Scam campaigns detected by the community, right now</h2>
+        </div>
+        <span class="radar-live"><span class="pulse"></span> REAL-TIME</span>
+      </div>
+      <div class="radar-grid">
+        <div class="radar-feed" id="radarFeed" aria-live="polite"></div>
+        <div class="radar-visual">
+          <div class="radar-scope">
+            <div class="radar-sweep"></div>
+            <div class="radar-ring r1"></div>
+            <div class="radar-ring r2"></div>
+            <div class="radar-ring r3"></div>
+            <div class="radar-blip" style="top:22%;left:63%"></div>
+            <div class="radar-blip" style="top:48%;left:28%"></div>
+            <div class="radar-blip" style="top:67%;left:72%"></div>
+          </div>
+          <div class="radar-caption" data-i18n="land_radar_caption">12.4k msgs/hr analyzed · 3 active campaign clusters</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- IMPACT STATS BAND -->
+    <div class="impact-band" data-reveal>
+      <div class="impact-cell">
+        <div class="impact-num"><span data-count="847293">0</span><span class="impact-suffix">+</span></div>
+        <div class="impact-label" data-i18n="land_impact_msgs">Messages Analyzed</div>
+      </div>
+      <div class="impact-cell">
+        <div class="impact-num"><span data-count="99.2" data-decimals="1">0</span><span class="impact-suffix">%</span></div>
+        <div class="impact-label" data-i18n="land_impact_accuracy">Detection Accuracy</div>
+      </div>
+      <div class="impact-cell">
+        <div class="impact-num"><span data-count="41200">0</span><span class="impact-suffix">+</span></div>
+        <div class="impact-label" data-i18n="land_impact_blocked">Fraud Attempts Blocked</div>
+      </div>
+      <div class="impact-cell">
+        <div class="impact-num"><span data-count="1930">0</span></div>
+        <div class="impact-label" data-i18n="land_impact_helpline">Helpline, One Tap Away</div>
+      </div>
+    </div>
+
+    <!-- FEATURE TRIO -->
+    <div class="section-head" data-reveal>
+      <span class="section-kicker" data-i18n="land_why_kicker">WHY SCAMSHIELD</span>
+      <h2 class="section-title"><span data-i18n="land_why_title_1">Built for the scams that</span> <span class="grad-text" data-i18n="land_why_title_2">haven't happened yet</span></h2>
+    </div>
+    <div class="feature-trio">
+      <div class="feature-card" data-reveal>
+        <div class="feature-icon fi-cyan">🧠</div>
+        <h3 data-i18n="land_feat1_t">Explainable AI</h3>
+        <p data-i18n="land_feat1_d">Every 0–100 score arrives with a transparent audit trail — threat signals, URL intel, behavior and AI context.</p>
+      </div>
+      <div class="feature-card" data-reveal>
+        <div class="feature-icon fi-blue">🌐</div>
+        <h3 data-i18n="land_feat2_t">Live DNS Intel</h3>
+        <p data-i18n="land_feat2_d">Catches unmapped zero-hour phishing hosts in real time — before blacklists ever hear about them.</p>
+      </div>
+      <div class="feature-card" data-reveal>
+        <div class="feature-icon fi-violet">🛡️</div>
+        <h3 data-i18n="land_feat3_t">Family Mode</h3>
+        <p data-i18n="land_feat3_d">One-tap WhatsApp warning cards translate technical risk into plain language for parents and elders.</p>
+      </div>
+    </div>
+
+  <!-- MAIN ANALYZER CARD -->
     <div class="analyzer-card">
       <div class="tabs-nav">
         <button class="tab-btn active" data-tab="text">
@@ -117,6 +309,9 @@
         </button>
         <button class="tab-btn" data-tab="qr">
           <span>▦</span> QR Code
+        </button>
+        <button class="tab-btn" data-tab="agent">
+          <span>🤖</span> Agent Shield <span class="tab-new-badge">NEW</span>
         </button>
       </div>
 
@@ -172,6 +367,15 @@ e.g. URGENT! Your SBI account will be blocked today. Verify your KYC immediately
           <input type="file" id="qrFile" accept="image/*" class="hidden">
           <div id="qrStatusBox" class="staged-progress hidden"></div>
         </div>
+
+        <!-- 5. AGENT SHIELD INPUT (prompt-injection / agent-config scanner) -->
+        <div class="tab-content hidden" id="tab-agent">
+          <textarea id="agentInput" class="cyber-input agent-input" style="min-height:130px;font-family:'JetBrains Mono',monospace;font-size:12.5px;line-height:1.6;" placeholder="Paste any file your AI agent will read — AGENTS.md / CLAUDE.md / .cursorrules, MCP config JSON, README, tool manifest, email..."></textarea>
+          <div class="agent-hint-row">
+            <span class="agent-hint-dot"></span>
+            <span>Scans for prompt injection, invisible Unicode payloads, auto-run hooks, credential exfiltration &amp; tool poisoning — <b>before</b> your AI agent reads the file. Runs 100% on-device.</span>
+          </div>
+        </div>
       </div>
 
       <!-- Quick Example Chips (Dynamically rendered per active tab) -->
@@ -201,6 +405,17 @@ e.g. URGENT! Your SBI account will be blocked today. Verify your KYC immediately
 
     <!-- RESULTS CONTAINER -->
     <div id="results"></div>
+
+    <!-- FINAL CTA BAND -->
+    <div class="final-cta" data-reveal>
+      <div class="final-cta-glow" aria-hidden="true"></div>
+      <h2 class="final-cta-title"><span data-i18n="land_cta_title_1">The next scam</span> <span class="grad-text" data-i18n="land_cta_title_2">won't wait.</span></h2>
+      <p class="final-cta-sub" data-i18n="land_cta_sub">Paste a suspicious message above and watch the full evidence chain in seconds — before anyone you love clicks the link.</p>
+      <button class="btn-hero-primary" onclick="document.getElementById('textInput').focus(); document.getElementById('page-scanner').scrollIntoView({behavior:'smooth'})">
+        <span>⚡</span> <span data-i18n="hero_cta_scan">Scan Now</span>
+      </button>
+      <div class="final-cta-note" data-i18n="land_cta_note">No signup · 11 languages · Works offline via local threat engine</div>
+    </div>
 
   </section>
 
@@ -428,17 +643,69 @@ e.g. URGENT! Your SBI account will be blocked today. Verify your KYC immediately
     </div>
   </section>
 
+<!-- ================= 6. SETTINGS PAGE ================= -->
+<section class="page" id="page-settings">
+  <div id="settingsPageContent">
+    <!-- Rendered by settings.js -->
+  </div>
+</section>
+
 </div>
 </main>
 
-<footer>
-  <b>ScamShield AI</b> — Detect. Explain. Protect. · Built for Hack Devengers 2.0<br>
-  Suspect cyber fraud? Immediately contact the National Cyber Crime Helpline: <a href="tel:1930">1930</a> or visit <a href="https://cybercrime.gov.in" target="_blank" rel="noopener">cybercrime.gov.in</a>
+<footer class="footer-new">
+  <div class="footer-grid">
+    <div>
+      <div class="footer-brand-title">🛡️ SCAMSHIELD AI</div>
+      <div class="footer-tagline" data-i18n="footer_tagline">Detect • Explain • Protect</div>
+      <p style="font-size:12px;color:var(--ink-dim);line-height:1.6;">AI-powered digital fraud detection and explainable risk analysis for individuals, families, and communities.</p>
+    </div>
+    <div>
+      <div class="footer-section-title">Navigation</div>
+      <ul class="footer-links">
+        <li><a data-page="scanner" data-i18n="nav_scanner">Scanner</a></li>
+        <li><a data-page="howitworks" data-i18n="nav_howitworks">How It Works</a></li>
+        <li><a data-page="about" data-i18n="nav_about">About</a></li>
+        <li><a data-page="settings" data-i18n="settings_title">Settings</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="footer-section-title">Emergency</div>
+      <div class="footer-emergency">
+        <b data-i18n="footer_helpline">India Cyber Crime Helpline</b>: <a href="tel:1930">1930</a><br>
+        <span data-i18n="footer_emergency">Suspect cyber fraud? Contact</span> <a href="https://cybercrime.gov.in" target="_blank" rel="noopener">cybercrime.gov.in</a>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    ScamShield AI — Detect. Explain. Protect.
+  </div>
 </footer>
 
-<!-- EMBEDDED THREAT ENGINE (Ensures complete offline browser capability & instant demos) -->
+<!-- Core modules -->
+<script src="theme.js"></script>  <script src="i18n.js"></script>
+  <script src="lang-packs.js"></script>
+<script src="toast.js"></script>
+<script src="modal.js"></script>
+
+<!-- Threat intelligence -->
 <script src="lib/ai/threat-engine.js"></script>
-<!-- SCAMSHIELD FRONTEND APPLICATION -->
+<script src="lib/sentinel/sentinel-engine.js"></script>
+
+<!-- Feature modules -->
+<script src="protection.js"></script>
+<script src="intro.js"></script>
+<script src="settings.js"></script>
+
+<!-- Main application -->
 <script src="app.js"></script>
+<script>
+  // PWA: installable + offline-capable app shell
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js').catch((err) => console.warn('SW registration skipped:', err.message));
+    });
+  }
+</script>
 </body>
 </html>

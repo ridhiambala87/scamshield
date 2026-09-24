@@ -93,7 +93,7 @@ module.exports = async function handler(req, res) {
 
     const cleanInput = inputText.slice(0, 12000).trim();
     const cleanFlags = Array.isArray(urlFlags) ? urlFlags : [];
-    const validLang = ['en', 'hi', 'hinglish'].includes(language) ? language : 'en';
+    const validLang = ['en', 'hi', 'hinglish', 'pa', 'bn', 'mr', 'gu', 'ta', 'te', 'kn', 'ml'].includes(language) ? language : 'en';
 
     // 1. Check in-memory cache for identical requests to save LLM tokens & avoid latency
     const cacheKey = `${validLang}:${cleanInput}`;
@@ -128,6 +128,28 @@ module.exports = async function handler(req, res) {
 
         if (dnsIntel && !aiResult.dns_intelligence) {
           aiResult.dns_intelligence = dnsIntel;
+        }
+
+        // Apply DNS risk bonus on the AI path too (was previously local-only)
+        if (dnsIntel && dnsIntel.riskBonus) {
+          aiResult.risk_score = Math.min(98, (aiResult.risk_score || 0) + dnsIntel.riskBonus);
+          if (aiResult.risk_score >= 75) aiResult.risk_level = 'CRITICAL';
+          else if (aiResult.risk_score >= 50) aiResult.risk_level = 'HIGH';
+          else if (aiResult.risk_score >= 25 && aiResult.risk_level === 'LOW') aiResult.risk_level = 'MEDIUM';
+          if (aiResult.score_breakdown) {
+            aiResult.score_breakdown.url_intelligence = (aiResult.score_breakdown.url_intelligence || 0) + dnsIntel.riskBonus;
+            aiResult.score_breakdown.total = aiResult.risk_score;
+          }
+        }
+
+        // Severity floor: if deterministic signals scream CRITICAL, the verdict cannot be LOW.
+        // (Prevents an AI misread like 'this looks like Microsoft so it's safe' on rnicrosoft.com)
+        const hasHardSignal = (aiResult.threat_signals || []).some(s => s.severity === 'CRITICAL' || s.severity === 'HIGH');
+        if (hasHardSignal && (aiResult.risk_level === 'LOW' || (aiResult.risk_score || 0) < 25)) {
+          aiResult.risk_score = Math.max(aiResult.risk_score || 0, 65);
+          aiResult.risk_level = 'HIGH';
+          aiResult.confidence = 'HIGH';
+          if (aiResult.score_breakdown) aiResult.score_breakdown.total = aiResult.risk_score;
         }
 
         // Cache result

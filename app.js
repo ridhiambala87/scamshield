@@ -17,7 +17,83 @@ function switchPage(pageId) {
   });
   if (pageId === 'dashboard') renderDashboard();
   if (pageId === 'history') renderHistory();
+  if (pageId === 'settings' && window.SettingsManager) {
+    const el = document.getElementById('settingsPageContent');
+    if (el && !el.dataset.rendered) {
+      el.innerHTML = SettingsManager.renderSettingsPage();
+      el.dataset.rendered = '1';
+      SettingsManager.init();
+    }
+  }
+  // Close mobile menu
+  const navCenter = document.getElementById('navCenter');
+  if (navCenter) navCenter.classList.remove('open');
   window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Hamburger menu toggle
+(function() {
+  const menuToggle = document.getElementById('menuToggle');
+  const navCenter = document.getElementById('navCenter');
+  if (menuToggle && navCenter) {
+    menuToggle.addEventListener('click', () => {
+      navCenter.classList.toggle('open');
+    });
+    // Close on outside click
+    document.addEventListener('click', (e) => {
+      if (!navCenter.contains(e.target) && !menuToggle.contains(e.target)) {
+        navCenter.classList.remove('open');
+      }
+    });
+  }
+})();
+
+// Theme toggle button
+(function() {
+  const themeBtn = document.getElementById('themeToggle');
+  if (themeBtn && window.ThemeManager) {
+    const updateIcon = () => {
+      const resolved = ThemeManager.getResolvedTheme();
+      themeBtn.textContent = resolved === 'dark' ? '🌙' : '☀️';
+    };
+    updateIcon();
+    themeBtn.addEventListener('click', () => {
+      const current = ThemeManager.getTheme();
+      const next = current === 'dark' ? 'light' : current === 'light' ? 'system' : 'dark';
+      ThemeManager.setTheme(next);
+      updateIcon();
+      if (window.showToast) showToast(next.charAt(0).toUpperCase() + next.slice(1) + ' theme', 'success', 2000);
+    });
+    // Update on system theme change
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', updateIcon);
+  }
+})();
+
+// Language selector integration with i18n
+(function() {
+  const langSelect = document.getElementById('langSelect');
+  if (langSelect && window.I18n) {
+    const savedLang = I18n.getCurrentLanguage();
+    if (savedLang) langSelect.value = savedLang;
+    langSelect.addEventListener('change', () => {
+      I18n.setLanguage(langSelect.value);
+      if (window.showToast) showToast(I18n.t('toast_lang_changed') || 'Language changed', 'success', 2000);
+    });
+  }
+
+  // Keep every language select (navbar + settings) in sync, wherever the change came from
+  document.addEventListener('languageChanged', (e) => {
+    const lang = e.detail && e.detail.lang;
+    if (!lang) return;
+    document.querySelectorAll('#langSelect, #lang-select').forEach(sel => {
+      if (sel && sel.value !== lang) sel.value = lang;
+    });
+  });
+})();
+
+// Initialize intro on first load
+if (window.IntroManager) {
+  IntroManager.init();
 }
 
 const tabs = document.querySelectorAll('.tab-btn');
@@ -354,6 +430,31 @@ const TAB_DEMO_PRESETS = {
       id: 'legit',
       label: '✅ Legitimate Bank Alert',
       text: "Dear Customer, your SBI Debit Card ending in 4102 was used for Rs. 450.00 at Swiggy on 13-Sep. If not done by you, forward this SMS to 9223008333 to block card immediately. Do not share OTP with anyone."
+    },
+    {
+      id: 'romance',
+      label: '💕 Romance Scam',
+      text: "My darling, I am stuck at the airport in Dubai and my wallet was stolen. I need you to send me ₹25,000 urgently through Western Union so I can buy a ticket to come see you. I promise I will pay you back as soon as I arrive. Please send money to this account immediately, I have no one else to turn to."
+    },
+    {
+      id: 'sextortion',
+      label: '🚨 Sextortion',
+      text: "I have your private photos and videos. If you don't send me ₹50,000 in Bitcoin within 24 hours, I will post them online and send them to all your friends and family on Facebook and Instagram. Don't try to block me, I already have everything saved. Pay me now or everyone will see."
+    },
+    {
+      id: 'fakerecruitment',
+      label: '👩‍💼 Fake Recruitment',
+      text: "Congratulations! You have been selected for an Amazon Work-From-Home Data Entry position. Salary: ₹35,000/month. To activate your employee ID and start immediately, pay the one-time registration fee of ₹1,999 to this account. Training begins tomorrow."
+    },
+    {
+      id: 'scholarship',
+      label: '🎓 Scholarship Scam',
+      text: "Dear Student, Your scholarship application for National Merit Award 2025 has been APPROVED! Amount: ₹2,50,000. To process your scholarship, pay the processing fee of ₹3,500 immediately. Your seat will be cancelled if not paid within 48 hours."
+    },
+    {
+      id: 'influencer',
+      label: '📱 Influencer Scam',
+      text: "Hi! Your Instagram account has been selected for our exclusive paid brand collaboration program. Earn ₹15,000 per sponsored post! To verify your account and start receiving brand deals, pay the one-time verification fee of ₹999. Limited spots available."
     }
   ],
 
@@ -449,6 +550,34 @@ const TAB_DEMO_PRESETS = {
       label: '✅ Safe Merchant Payment (Swiggy ₹250)',
       payload: 'upi://pay?pa=swiggy@icici&pn=SwiggyOrders&am=250'
     }
+  ],
+
+  agent: [
+    {
+      id: 'ag_readme',
+      label: '🩳 Poisoned README (hidden HTML comment)',
+      text: window.AgentShieldEngine ? window.AgentShieldEngine.SAMPLES.poisoned_readme : ''
+    },
+    {
+      id: 'ag_invisible',
+      label: '👀 Invisible Unicode Directive',
+      text: window.AgentShieldEngine ? window.AgentShieldEngine.SAMPLES.invisible_directive : ''
+    },
+    {
+      id: 'ag_config',
+      label: '⚙️ Malicious Agent Config (auto-run hooks)',
+      text: window.AgentShieldEngine ? window.AgentShieldEngine.SAMPLES.agent_config : ''
+    },
+    {
+      id: 'ag_injection',
+      label: '💉 Prompt-Injection Document',
+      text: window.AgentShieldEngine ? window.AgentShieldEngine.SAMPLES.prompt_injection_doc : ''
+    },
+    {
+      id: 'ag_clean',
+      label: '✅ Clean Team Handbook',
+      text: window.AgentShieldEngine ? window.AgentShieldEngine.CLEAN : ''
+    }
   ]
 };
 
@@ -459,6 +588,15 @@ function pulseAnalyzeButton() {
     btn.scrollIntoView({ behavior: 'smooth', block: 'center' });
     btn.style.boxShadow = '0 0 25px var(--cyan)';
     setTimeout(() => { btn.style.boxShadow = ''; }, 1200);
+  }
+}
+
+// 1a. Agent Shield Preset Loader
+function loadSampleAgent(text) {
+  const input = document.getElementById('agentInput');
+  if (input) {
+    input.value = text;
+    pulseAnalyzeButton();
   }
 }
 
@@ -686,7 +824,8 @@ function renderJudgeDemoChips(activeTab = 'text') {
     text: '⚡ Message Demos:',
     screenshot: '⚡ Screenshot Demos (Click to load image):',
     url: '⚡ URL Demos (Click to test link):',
-    qr: '⚡ QR Code Demos (Click to generate QR):'
+    qr: '⚡ QR Code Demos (Click to generate QR):',
+    agent: '⚡ Agent Shield Demos (Click to load file):'
   };
 
   if (label) label.textContent = labels[activeTab] || '⚡ Judge Demos:';
@@ -707,6 +846,8 @@ function renderJudgeDemoChips(activeTab = 'text') {
 
       if (tab === 'text') {
         loadSampleText(preset.text);
+      } else if (tab === 'agent') {
+        loadSampleAgent(preset.text);
       } else if (tab === 'screenshot') {
         loadSampleScreenshot(preset);
       } else if (tab === 'url') {
@@ -751,6 +892,7 @@ function addToHistory(inputPreview, result, inputType) {
     localStorage.setItem('scamshield_history', JSON.stringify(scanHistory));
   } catch (e) {}
   updateHistoryBadge();
+  if (typeof updateHeroStats === 'function') updateHeroStats();
 }
 
 function renderHistory(filter = 'all', searchQuery = '') {
@@ -832,7 +974,25 @@ if (searchEl) {
 const clearBtn = document.getElementById('clearHistoryBtn');
 if (clearBtn) {
   clearBtn.addEventListener('click', () => {
-    if (confirm('Are you sure you want to clear all scan history from this browser?')) {
+    if (window.ModalManager) {
+      ModalManager.openModal({
+        id: 'clear-history',
+        title: window.I18n ? I18n.t('history_clear') : 'Clear Scan History',
+        content: '<p style="color:var(--ink-muted);margin:0;">' + (window.I18n ? I18n.t('confirm_clear_history') : 'Are you sure you want to clear all scan history from this browser? This action cannot be undone.') + '</p>',
+        type: 'confirm',
+        size: 'sm',
+        confirmText: window.I18n ? I18n.t('history_clear') : 'Clear History',
+        cancelText: window.I18n ? I18n.t('cancel') : 'Cancel',
+        onConfirm: () => {
+          scanHistory = [];
+          localStorage.removeItem('scamshield_history');
+          updateHistoryBadge();
+          renderHistory();
+          renderDashboard();
+          if (window.showToast) showToast(window.I18n ? I18n.t('toast_history_cleared') : 'History cleared', 'success');
+        }
+      });
+    } else if (confirm('Are you sure you want to clear all scan history from this browser?')) {
       scanHistory = [];
       localStorage.removeItem('scamshield_history');
       updateHistoryBadge();
@@ -958,6 +1118,8 @@ function getScoreColor(score) {
 }
 
 async function executeThreatAnalysis(inputText, urlFlags, language) {
+  let serverError = null;
+  let isOffline = false;
   try {
     const response = await fetch('/api/analyze', {
       method: 'POST',
@@ -968,13 +1130,35 @@ async function executeThreatAnalysis(inputText, urlFlags, language) {
     if (response.ok) {
       return await response.json();
     }
+
+    // Surface why the server refused, instead of silently downgrading the result
+    let serverMsg = '';
+    try {
+      const errBody = await response.json();
+      serverMsg = (errBody && errBody.error) || '';
+    } catch (e) { /* body not JSON — ignore */ }
+    serverError = { status: response.status, message: serverMsg };
   } catch (netErr) {
     console.warn('Backend endpoint unreachable, running client-side ThreatEngine:', netErr);
+    isOffline = !navigator.onLine || netErr.name === 'TypeError';
+  }
+
+  if (window.showToast) {
+    if (serverError && serverError.status === 429) {
+      showToast('Too many scans in a minute — showing on-device analysis. Try the AI engine again shortly.', 'warning', 5000);
+    } else if (serverError) {
+      showToast('Cloud engine hiccup (' + serverError.status + ') — on-device analysis took over.', 'error', 5000);
+    } else if (isOffline) {
+      showToast('You appear offline — on-device Threat Engine is analyzing this scan.', 'info', 5000);
+    }
   }
 
   if (window.ThreatEngine) {
     const fallback = window.ThreatEngine.buildLocalAssessment(inputText, urlFlags, language);
-    fallback.warning = 'AI enhancement unavailable — showing local threat analysis.';
+    fallback.warning = serverError
+      ? 'Cloud AI unavailable (HTTP ' + serverError.status + ')' + (serverError.message ? ': ' + serverError.message : '') + ' — showing on-device threat analysis.'
+      : 'AI enhancement unavailable — showing on-device threat analysis.';
+    fallback.source = 'local_rule_engine';
     return fallback;
   }
 
@@ -1246,6 +1430,29 @@ function renderResults(result, inputText) {
   document.getElementById('results').innerHTML = html;
   document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
 
+  // Women Safety insight card injection (auto — triggered by content, not by mode)
+  if (window.ProtectionManager && result.risk_score >= 25) {
+    const wsResult = ProtectionManager.detectWomenSafetyCategory(inputText, result.red_flags || []);
+    if (wsResult && wsResult.detected) {
+      const wsCard = ProtectionManager.generateWomenSafetyCard(wsResult.category, wsResult.reasons, wsResult.actions);
+      const resultContainer = document.querySelector('.result-container');
+      if (resultContainer) {
+        const wsDiv = document.createElement('div');
+        wsDiv.innerHTML = wsCard;
+        // Insert before action buttons
+        const actionsBar = resultContainer.querySelector('.result-actions-bar');
+        if (actionsBar) {
+          actionsBar.parentNode.insertBefore(wsDiv, actionsBar);
+        } else {
+          resultContainer.appendChild(wsDiv);
+        }
+      }
+    }
+  }
+
+  // Scan complete toast
+  if (window.showToast) showToast(window.I18n ? I18n.t('toast_scan_complete') : 'Scan complete', 'success', 2000);
+
   animateScore(result.risk_score);
 
   const modeMap = {
@@ -1359,7 +1566,8 @@ function animateScore(targetScore) {
 
 function speakText(text) {
   if (!('speechSynthesis' in window)) {
-    alert("Speech synthesis is not supported by your browser.");
+    if (window.showToast) showToast('Speech synthesis is not supported by your browser.', 'warning');
+    else console.warn('Speech synthesis not supported.');
     return;
   }
   window.speechSynthesis.cancel();
@@ -1619,10 +1827,20 @@ if (analyzeBtn) {
         const urlRes = window.ThreatEngine.analyzeUrl(inputText);
         urlFlags = urlRes.flags || [];
       }
+    } else if (activeTab === 'agent') {
+      inputText = document.getElementById('agentInput').value.trim();
+      inputType = "Agent File";
     }
 
     if (!inputText) {
-      alert("Please provide content to analyze (type a message, upload a screenshot, enter a URL, or upload a QR code).");
+      if (window.showToast) showToast(window.I18n ? I18n.t('error_empty_input') : 'Please provide content to analyze.', 'warning');
+      else console.warn('No input provided.');
+      return;
+    }
+
+    // ── Agent Shield: fully local deterministic pipeline (no server needed) ──
+    if (activeTab === 'agent') {
+      runAgentShieldScan(inputText);
       return;
     }
 
@@ -1690,3 +1908,291 @@ if (analyzeBtn) {
 }
 
 
+// ═══════════════════════════════════════════════════════════
+// AGENT SHIELD — prompt-injection / agent-config scan flow
+// ═══════════════════════════════════════════════════════════
+const AGENT_LEVEL_META = {
+  critical: { label: 'CRITICAL — DO NOT TRUST THIS FILE',  icon: '⛔', color: 'var(--critical)',  dim: 'var(--critical-dim)',  border: 'var(--critical-border)' },
+  high:     { label: 'HIGH RISK — REVIEW BEFORE USE',      icon: '⚠️', color: '#F59E0B',           dim: 'rgba(245,158,11,0.10)', border: 'rgba(245,158,11,0.4)' },
+  medium:   { label: 'SUSPICIOUS — INSPECT SIGNALS',       icon: '⚠',  color: '#FBBF24',           dim: 'rgba(251,191,36,0.08)', border: 'rgba(251,191,36,0.35)' },
+  low:      { label: 'MINOR FLAGS — LIKELY SAFE',          icon: 'ℹ',  color: '#60A5FA',           dim: 'rgba(96,165,250,0.08)', border: 'rgba(96,165,250,0.3)' },
+  clean:    { label: 'CLEAN — SAFE FOR YOUR AGENT',        icon: '✓',  color: '#22C55E',           dim: 'rgba(34,197,94,0.10)',  border: 'rgba(34,197,94,0.4)' }
+};
+
+function runAgentShieldScan(inputText) {
+  const btn = document.getElementById('analyzeBtn');
+  const stagedBox = document.getElementById('scanningStagedBox');
+  const results = document.getElementById('results');
+  if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Scanning file...'; }
+  if (stagedBox) stagedBox.classList.remove('hidden');
+  if (results) results.innerHTML = '';
+
+  const stages = [
+    { id: 'scanStage2', done: 'Unicode / invisible-payload sweep complete', active: null },
+    { id: 'scanStage3', done: 'Instruction-override & trust rules evaluated', active: 'Checking agent-config rules...' },
+    { id: 'scanStage4', done: 'Exfiltration & execution rules evaluated', active: 'Scoring threat signals...' },
+    { id: 'scanStage5', done: 'Agent Shield verdict ready', active: null }
+  ];
+  let step = 0;
+  const timer = setInterval(() => {
+    if (step > 0 && stages[step - 1]) {
+      const prev = document.getElementById(stages[step - 1].id);
+      if (prev) { prev.className = 'stage-step done'; prev.innerHTML = '<span class="stage-icon">✓</span> ' + stages[step - 1].done; }
+    }
+    if (stages[step] && stages[step].active) {
+      const cur = document.getElementById(stages[step].id);
+      if (cur) cur.className = 'stage-step active';
+    }
+    step++;
+    if (step > stages.length) {
+      clearInterval(timer);
+      const engine = window.AgentShieldEngine;
+      const result = engine ? engine.scan(inputText) : { score: 0, level: 'clean', signals: [], summary: 'Engine unavailable', meta: {} };
+      if (stagedBox) stagedBox.classList.add('hidden');
+      renderAgentShieldResult(result, inputText);
+      addToHistory(inputText, { score: result.score, level: result.level, verdict: result.level.toUpperCase(), signals: result.signals }, 'Agent File');
+      if (btn) { btn.disabled = false; btn.innerHTML = '<span>🛡️</span> Analyze Threat Signals & AI Context →'; }
+    }
+  }, 260);
+}
+
+function renderAgentShieldResult(result, inputText) {
+  const results = document.getElementById('results');
+  if (!results) return;
+  const meta = AGENT_LEVEL_META[result.level] || AGENT_LEVEL_META.clean;
+  const tierNames = { 1: 'Trust Manipulation', 2: 'Exfiltration / Execution', 3: 'Structural / Config' };
+  const signalRows = (result.signals || []).map(s => `
+    <div class="agent-signal-row">
+      <div class="agent-signal-head">
+        <span class="agent-signal-key">${escapeHtml(s.key)}</span>
+        <span class="agent-signal-tier">T${s.tier} · ${tierNames[s.tier] || 'Heuristic'}</span>
+        <span class="agent-signal-weight" style="color:${meta.color}">+${s.weight}</span>
+      </div>
+      <div class="agent-signal-title">${escapeHtml(s.title)}</div>
+      <div class="agent-signal-desc">${escapeHtml(s.description)}</div>
+    </div>`).join('') || '<div class="agent-signal-desc" style="padding:8px 4px;">No malicious patterns found.</div>';
+
+  results.innerHTML = `
+    <div class="verdict-card agent-verdict" style="margin-top:20px;">
+      <div class="verdict-band" style="background:${meta.dim};border-color:${meta.border};">
+        <div class="verdict-left">
+          <div class="verdict-label" style="color:${meta.color};">${meta.icon} ${meta.label}</div>
+          <div class="verdict-sub">Agent Shield · On-device deterministic scan · ${result.meta.durationMs}ms</div>
+        </div>
+        <div class="verdict-score-wrap">
+          <div class="verdict-score" style="color:${meta.color};">${result.score}</div>
+          <div class="verdict-score-sub">/100 risk</div>
+        </div>
+      </div>
+      <div class="agent-meta-row">
+        <span>${result.meta.chars.toLocaleString('en-IN')} chars</span>
+        <span>${result.meta.lines} lines</span>
+        <span class="${result.meta.invisible > 0 ? 'agent-meta-alert' : ''}">${result.meta.invisible} invisible chars</span>
+        <span>${result.signals.length} signal${result.signals.length === 1 ? '' : 's'}</span>
+      </div>
+      <div class="agent-summary">${escapeHtml(result.summary)}</div>
+      <div class="agent-signals">${signalRows}</div>
+      <div class="agent-advice" style="border-left-color:${meta.color};">
+        ${result.level === 'clean'
+          ? 'No injection patterns detected. Normal caution still applies — Agent Shield is a heuristic layer, not a guarantee.'
+          : 'Do not let an AI agent act on this file until the flagged content is removed. Invisible characters and hidden directives above are what the model would actually follow.'}
+      </div>
+    </div>`;
+  results.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// ═══════════════════════════════════════════════════════════
+// V2 HERO ENHANCEMENTS — terminal animation, scroll reveal, stats
+// ═══════════════════════════════════════════════════════════
+
+// ── 1. Live threat-analysis terminal loop ──
+(function heroTerminal() {
+  const body = document.getElementById('heroTerminal');
+  if (!body) return;
+
+  const SCRIPT = [
+    { cls: 'info',   html: '<span class="term-prompt">▸</span> <span class="term-cmd">ingest message · 142 chars · lang: en+hi</span>' },
+    { cls: 'ok',     html: '<span class="term-prompt">✓</span> <span class="term-cmd">normalized 3 obfuscated tokens (Y0N0 → YONO, 0TP → OTP)</span>' },
+    { cls: 'ok',     html: '<span class="term-prompt">✓</span> <span class="term-cmd">DNS A-record: sbi-online-kyc-update.xyz → NXDOMAIN (0-day host)</span>' },
+    { cls: 'warn',   html: '<span class="term-prompt">⚠</span> <span class="term-cmd">brand lookalike: "sbi-online" vs onlinesbi.sbi · TLD .xyz</span>' },
+    { cls: 'warn',   html: '<span class="term-prompt">⚠</span> <span class="term-cmd">urgency coercion +25 · authority impersonation +20 · credential harvest +15</span>' },
+    { cls: 'ok',     html: '<span class="term-prompt">✓</span> <span class="term-cmd">groq reasoning: intent = credential phishing, confidence HIGH</span>' },
+    { cls: 'bad',    html: '<span class="term-prompt">⛔</span> <span class="term-cmd">VERDICT: CRITICAL 98/100 — do not click. Helpline 1930 ready.</span>' }
+  ];
+
+  // Static full-sequence render when animations are disabled
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    SCRIPT.forEach(s => {
+      const line = document.createElement('div');
+      line.className = 'term-line ' + s.cls;
+      line.innerHTML = s.html;
+      body.appendChild(line);
+    });
+    return;
+  }
+
+  let i = 0;
+  function tick() {
+    const line = document.createElement('div');
+    line.className = 'term-line ' + SCRIPT[i].cls;
+    line.innerHTML = SCRIPT[i].html;
+    body.appendChild(line);
+
+    // Keep at most 6 lines visible (first line = prompt header)
+    while (body.children.length > 6) body.removeChild(body.firstChild);
+
+    i = (i + 1) % SCRIPT.length;
+    if (i === 0) {
+      // Full cycle done — pause, wipe, restart
+      setTimeout(() => {
+        body.innerHTML = '<div class="term-line"><span class="term-prompt">➜</span> <span class="term-cmd">scamshield scan --input "URGENT! SBI account blocked..."</span></div>';
+      }, 2600);
+    }
+  }
+  setInterval(tick, 1700);
+})();
+
+// ── 2. Scroll reveal (IntersectionObserver) ──
+(function scrollReveal() {
+  const els = document.querySelectorAll('[data-reveal]');
+  if (!('IntersectionObserver' in window)) {
+    els.forEach(el => el.classList.add('revealed'));
+    return;
+  }
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('revealed');
+        io.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+  els.forEach(el => io.observe(el));
+})();
+
+// ── 3. Hero stats counters (live from scan history) ──
+function updateHeroStats() {
+  const scansEl = document.getElementById('heroStatScans');
+  const threatsEl = document.getElementById('heroStatThreats');
+  if (!scansEl || !threatsEl) return;
+  let history = [];
+  try { history = JSON.parse(localStorage.getItem('scamshield_history') || '[]'); } catch (e) {}
+  const threats = history.filter(s => s.score >= 25).length;
+
+  animateCount(scansEl, history.length);
+  animateCount(threatsEl, threats);
+}
+
+function animateCount(el, target) {
+  const from = parseInt((el.textContent || '0').replace(/\D/g, ''), 10) || 0;
+  if (from === target) { el.textContent = target; return; }
+  const dur = 700;
+  const start = performance.now();
+  function frame(now) {
+    const p = Math.min(1, (now - start) / dur);
+    const eased = 1 - Math.pow(1 - p, 3);
+    el.textContent = Math.round(from + (target - from) * eased);
+    if (p < 1) requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+}
+updateHeroStats();
+
+// ── 4. Stagger reveal for feature cards ──
+(function staggerFeatures() {
+  document.querySelectorAll('.feature-trio .feature-card').forEach((card, i) => {
+    card.style.transitionDelay = (i * 90) + 'ms';
+  });
+})();
+// ── 5. Live threat radar feed (simulated community detections) ──
+(function radarFeed() {
+  const feed = document.getElementById('radarFeed');
+  if (!feed) return;
+
+  const EVENTS = [
+    { ico: '🏦', msg: '<b>KYC suspension</b> scam · sbi-kyc-update.top · Rajasthan', tag: 'CRITICAL', cls: 'ft-crit' },
+    { ico: '💼', msg: '<b>fake HR</b> Telegram job offer · ₹39 registration fee', tag: 'HIGH', cls: 'ft-high' },
+    { ico: '📦', msg: '<b>customs fee</b> phishing · fedex-redeliver.in', tag: 'HIGH', cls: 'ft-high' },
+    { ico: '💘', msg: '<b>romance bait</b> · gift-card escalation pattern', tag: 'MEDIUM', cls: 'ft-med' },
+    { ico: '⚖️', msg: '<b>digital arrest</b> extortion · fake CBI video call', tag: 'CRITICAL', cls: 'ft-crit' },
+    { ico: '🎁', msg: '<b>lottery win</b> SMS · ₹25,00,000 claim link', tag: 'HIGH', cls: 'ft-high' },
+    { ico: '🔐', msg: '<b>OTP harvesting</b> · caller-ID spoofed as bank', tag: 'CRITICAL', cls: 'ft-crit' },
+    { ico: '🚗', msg: '<b>FASTag recharge</b> phishing · paytm-fasttag.site', tag: 'HIGH', cls: 'ft-high' },
+    { ico: '📱', msg: '<b>SIM-swap warning</b> scam call cluster · Gujarat', tag: 'MEDIUM', cls: 'ft-med' }
+  ];
+
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const TIMES = ['just now', '12s ago', '31s ago', '48s ago', '1m ago'];
+
+  function addRow(idx, animate) {
+    const ev = EVENTS[idx % EVENTS.length];
+    const row = document.createElement('div');
+    row.className = 'feed-row';
+    if (!animate) row.style.animation = 'none';
+    row.innerHTML =
+      '<span class="feed-ico">' + ev.ico + '</span>' +
+      '<span class="feed-msg">' + ev.msg + '</span>' +
+      '<span class="feed-tag ' + ev.cls + '">' + ev.tag + '</span>' +
+      '<span class="feed-time">' + TIMES[idx % TIMES.length] + '</span>';
+    feed.appendChild(row);
+    while (feed.children.length > 5) feed.removeChild(feed.firstChild);
+  }
+
+  for (let k = 0; k < 5; k++) addRow(EVENTS.length - 5 + k, false);
+
+  if (reduced) {
+    // Static render, no rotation
+    return;
+  }
+  let next = EVENTS.length - 5 + 5;
+  setInterval(() => addRow(next++, true), 3400);
+})();
+
+// ── 6. Marquee: duplicate the chip set so the loop is seamless ──
+(function marquee() {
+  const track = document.getElementById('capTrack');
+  if (!track) return;
+  track.innerHTML += track.innerHTML; // -50% translateX == one full set
+})();
+
+// ── 7. Impact counters (count up when scrolled into view) ──
+(function impactCounters() {
+  const nums = document.querySelectorAll('[data-count]');
+  if (!nums.length) return;
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function render(el, target) {
+    const decimals = parseInt(el.getAttribute('data-decimals') || '0', 10);
+    const start = performance.now();
+    const dur = 1400;
+    function frame(now) {
+      const p = Math.min(1, (now - start) / dur);
+      const eased = 1 - Math.pow(1 - p, 4);
+      const val = target * eased;
+      el.textContent = decimals
+        ? val.toFixed(decimals)
+        : Math.round(val).toLocaleString('en-IN');
+      if (p < 1) requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+  }
+
+  if (!('IntersectionObserver' in window) || reduced) {
+    nums.forEach(el => {
+      const target = parseFloat(el.getAttribute('data-count'));
+      const d = parseInt(el.getAttribute('data-decimals') || '0', 10);
+      el.textContent = d ? target.toFixed(d) : Math.round(target).toLocaleString('en-IN');
+    });
+    return;
+  }
+
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        render(entry.target, parseFloat(entry.target.getAttribute('data-count')));
+        io.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.4 });
+  nums.forEach(el => io.observe(el));
+})();

@@ -1,0 +1,7 @@
+[ScamShield Server] Loaded configuration from .env
+
+======================================================
+🛡️  ScamShield AI Server is active on http://localhost:3001
+🤖  Groq AI Provider: Configured (Model: openai/gpt-oss-20b)
+======================================================
+
